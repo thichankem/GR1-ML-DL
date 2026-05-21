@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Lab 01 solution module
+"""Lab 01 solution module (same content as Lab02/lab01.py).
 
 Exports:
     - environment: GridWorld simulator
     - MAB_agent:   greedy Multi-Armed-Bandit agent (no exploration)
     - MABe_agent:  epsilon-greedy MAB agent
-
-This module is imported by Lab 02 (Q-learning / SARSA) which inherits MABe_agent.
 """
 
 import numpy as np
@@ -41,21 +39,17 @@ class environment:
         self.reward.append(reward)
 
     def get_Observation(self, location, action):
-        # First-time observation
         if action == -1:
             return None, self.action_space, None
 
-        # Special teleport cells
         if location in self.start:
             idx = self.start.index(location)
-            new_location = self.end[idx]
-            reward = self.reward[idx]
-            return new_location, self.action_space, reward
+            return self.end[idx], self.action_space, self.reward[idx]
 
         reward = 0
         new_location = location
 
-        if action == 0:  # UP
+        if action == 0:    # UP
             if location - self.width >= 0:
                 new_location = location - self.width
         elif action == 1:  # DOWN
@@ -72,13 +66,6 @@ class environment:
 
 
 class MAB_agent:
-    """Multi-Armed-Bandit agent.
-
-    Keeps a Q-table of running averages of immediate rewards per (state, action)
-    and acts greedily.  This is the simplest sensible learner for the lab
-    before we introduce exploration or temporal-difference bootstrapping.
-    """
-
     def __init__(self, envir, init_location):
         self.envir = envir
         self.reward_trace = []
@@ -118,7 +105,6 @@ class MAB_agent:
                 self._update(self.prev_state, self.prev_action, pre_reward)
 
         action = self._greedy(self.location_now, action_space)
-
         self.prev_state = self.location_now
         self.prev_action = action
 
@@ -127,8 +113,6 @@ class MAB_agent:
 
 
 class MABe_agent(MAB_agent):
-    """MAB agent with epsilon-greedy exploration."""
-
     def __init__(self, envir, init_location, epsilon=0.1):
         super().__init__(envir, init_location)
         self.epsilon = epsilon
@@ -150,7 +134,6 @@ class MABe_agent(MAB_agent):
                 self._update(self.prev_state, self.prev_action, pre_reward)
 
         action = self._epsilon_greedy(self.location_now, action_space)
-
         self.prev_state = self.location_now
         self.prev_action = action
 
